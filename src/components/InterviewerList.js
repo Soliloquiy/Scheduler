@@ -15,6 +15,8 @@ export default function InterviewerList(props) {
         name={interviewer.name}
         avatar={interviewer.avatar}
         selected={interviewer.id === props.interviewer}
+        //setInterview updates props.interviewer to interviewer id of clicked item (avatar)
+        //This will trigger selected
         setInterviewer={event => props.setInterviewer(interviewer.id)}
       />
     );
