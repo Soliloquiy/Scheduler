@@ -8,81 +8,99 @@ import DayList from "./DayList";
 
 import Appointment from "components/Appointment";
 
+import { getAppointmentsForDay } from 'helpers/selectors.js';
+
 const axios = require('axios').default;
 
-const appointments = [
-  {
-    id: 1,
-    time: "12pm",
-  },
-  {
-    id: 2,
-    time: "1pm",
-    interview: {
-      student: "Lydia Miller-Jones",
-      interviewer: {
-        id: 1,
-        name: "Sylvia Palmer",
-        avatar: "https://i.imgur.com/LpaY82x.png",
-      }
-    }
-  },
-  {
-    id: 3,
-    time: "2pm",
-    interview: {
-      student: "Jesus Jones",
-      interviewer: {
-        id: 2,
-        name: "Tori Malcolm",
-        avatar: "https://i.imgur.com/Nmx0Qxo.png",
-      }
-    }
-  },
-  {
-    id: 4,
-    time: "4pm",
-    interview: {
-      student: "Kamaru Usman",
-      interviewer: {
-        id: 3,
-        name: "Mildred Nazir",
-        avatar: "https://i.imgur.com/T2WwVfS.png",
-      }
-    }
-  },
-  {
-    id: 5,
-    time: "7pm",
-  }
-];
+// const appointments = [
+//   {
+//     id: 1,
+//     time: "12pm",
+//   },
+//   {
+//     id: 2,
+//     time: "1pm",
+//     interview: {
+//       student: "Lydia Miller-Jones",
+//       interviewer: {
+//         id: 1,
+//         name: "Sylvia Palmer",
+//         avatar: "https://i.imgur.com/LpaY82x.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 3,
+//     time: "2pm",
+//     interview: {
+//       student: "Jesus Jones",
+//       interviewer: {
+//         id: 2,
+//         name: "Tori Malcolm",
+//         avatar: "https://i.imgur.com/Nmx0Qxo.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 4,
+//     time: "4pm",
+//     interview: {
+//       student: "Kamaru Usman",
+//       interviewer: {
+//         id: 3,
+//         name: "Mildred Nazir",
+//         avatar: "https://i.imgur.com/T2WwVfS.png",
+//       }
+//     }
+//   },
+//   {
+//     id: 5,
+//     time: "7pm",
+//   }
+// ];
 
 
 
 
 export default function Application(props) {
 
-  const [day, setDay] = useState("Monday");
-  const [days, setDays] = useState([]);
+  //Replace below with single state that handles all useStates
+  // const [day, setDay] = useState("Monday");
+  // const [days, setDays] = useState([]);
 
-  useEffect(() => {
-    axios.get('/api/days')
-    .then(function (response) {
-      // handle success
-      setDays([...response.data]);
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    })
-    .then(function () {
-      // always executed
-    });
-    
-  }, [])
+  const [state, setState] = useState({
+    day: "Monday",
+    days: [],
+    appointments: {}
+  });
+
+  let dailyAppointments = [];
+
+  //updates value with useState method
+  //pass spread of state, and value to function
+  //use spread to preserve original state
+  const setDay = day => setState({ ...state, day });
+  //use prev to remove dependency on useEffect
+
+
 
   
+  //Do not want dependency on state (only render once)
+  useEffect(() => {
+    Promise.all([
+      axios.get('/api/days'),
+      axios.get('/api/appointments')
+    ]).then(response => {
+      setState(prev => ({
+        ...prev,
+        days: response[0].data,
+        appointments: response[1].data,
+      }));
+    });
+  }, []);
 
+  
+  dailyAppointments = getAppointmentsForDay(state, state.day);
 
 
   return (
@@ -96,8 +114,8 @@ export default function Application(props) {
 <hr className="sidebar__separator sidebar--centered" />
 <nav className="sidebar__menu">
 <DayList
-  days={days}
-  day={day}
+  days={state.days}
+  day={state.day}
   setDay={setDay}
 />
 
@@ -110,7 +128,7 @@ export default function Application(props) {
 
       </section>
       <section className="schedule">
-        {appointments.map((appointment) => {
+        {dailyAppointments.map((appointment) => {
           //shortcut to spread keys for every single item
           //instead of <Appointment key={appointment.id} time={appointment.time} interview={appointment.interview} />
           return <Appointment key={appointment.id} {...appointment} />
