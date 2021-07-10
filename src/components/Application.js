@@ -10,6 +10,8 @@ import Appointment from "components/Appointment";
 
 import { getAppointmentsForDay } from 'helpers/selectors.js';
 
+import { getInterview } from "helpers/selectors";
+
 const axios = require('axios').default;
 
 // const appointments = [
@@ -71,10 +73,12 @@ export default function Application(props) {
   const [state, setState] = useState({
     day: "Monday",
     days: [],
-    appointments: {}
+    appointments: {},
+    interviewers: {}
   });
 
-  let dailyAppointments = [];
+  console.log(state.appointments)
+
 
   //updates value with useState method
   //pass spread of state, and value to function
@@ -89,19 +93,35 @@ export default function Application(props) {
   useEffect(() => {
     Promise.all([
       axios.get('/api/days'),
-      axios.get('/api/appointments')
+      axios.get('/api/appointments'),
+      axios.get('/api/interviewers')
     ]).then(response => {
       setState(prev => ({
         ...prev,
         days: response[0].data,
         appointments: response[1].data,
+        interviewers: response[2].data
       }));
     });
   }, []);
 
   
-  dailyAppointments = getAppointmentsForDay(state, state.day);
+  const appointments = getAppointmentsForDay(state, state.day);
 
+  const schedule = appointments.map((appointment) => {
+    const interview = getInterview(state, appointment.interview);
+
+    return (
+      <Appointment
+        key={appointment.id}
+        id={appointment.id}
+        time={appointment.time}
+        interview={interview}
+      />
+    );
+  });
+
+  
 
   return (
     <main className="layout">
@@ -128,11 +148,7 @@ export default function Application(props) {
 
       </section>
       <section className="schedule">
-        {dailyAppointments.map((appointment) => {
-          //shortcut to spread keys for every single item
-          //instead of <Appointment key={appointment.id} time={appointment.time} interview={appointment.interview} />
-          return <Appointment key={appointment.id} {...appointment} />
-        })}
+        {schedule}
         <Appointment key="last" time="9pm" />
         
       </section>
