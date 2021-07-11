@@ -12,6 +12,8 @@ import { getAppointmentsForDay } from 'helpers/selectors.js';
 
 import { getInterview } from "helpers/selectors";
 
+import { getInterviewersForDay } from "helpers/selectors";
+
 const axios = require('axios').default;
 
 // const appointments = [
@@ -77,7 +79,6 @@ export default function Application(props) {
     interviewers: {}
   });
 
-  console.log(state.appointments)
 
 
   //updates value with useState method
@@ -110,6 +111,7 @@ export default function Application(props) {
 
   const schedule = appointments.map((appointment) => {
     const interview = getInterview(state, appointment.interview);
+    const interviewers = getInterviewersForDay(state, state.day);
 
     return (
       <Appointment
@@ -117,6 +119,7 @@ export default function Application(props) {
         id={appointment.id}
         time={appointment.time}
         interview={interview}
+        interviewers={interviewers}
       />
     );
   });
