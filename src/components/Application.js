@@ -79,6 +79,7 @@ export default function Application(props) {
     interviewers: {}
   });
 
+  
 
 
   //updates value with useState method
@@ -106,6 +107,56 @@ export default function Application(props) {
     });
   }, []);
 
+
+  function bookInterview(id, interview) {
+
+    //send interview data in body to API for update
+    return axios.put(`/api/appointments/${id}`, { interview })
+    .then(() => {
+      //create new appointment object with updated interview object
+      const appointment = {
+        ...state.appointments[id],
+        //replace interview:null in appointment
+        interview: { ...interview }
+      };
+      
+      //create new appointments object
+      //purpose is to update interview object in appointments
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      };
+      //replace entire appointment property value with new appointment value
+      return setState(state => ({
+        ...state,
+        appointments
+      }));
+    })
+    
+  }
+
+  function cancelInterview(id, interview) {
+
+    return axios.delete(`/api/appointments/${id}`, { interview }).then(() => {
+      const appointment = {
+        ...state.appointments[id],
+        interview: { ...interview }
+      };
+
+      const appointments = {
+        ...state.appointments,
+        [id]: appointment
+      };
+
+      setState(state => ({
+        ...state,
+        appointments
+      }));
+    });
+  };
+  
+
+
   
   const appointments = getAppointmentsForDay(state, state.day);
 
@@ -120,6 +171,8 @@ export default function Application(props) {
         time={appointment.time}
         interview={interview}
         interviewers={interviewers}
+        bookInterview={bookInterview}
+        cancelInterview={cancelInterview}
       />
     );
   });
