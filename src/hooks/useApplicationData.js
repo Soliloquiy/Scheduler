@@ -1,6 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
+//look through appointments for day and check if interview is null
+//if so, update the freeSpots counter
+function getSpotsRemainingForDay(day, appointments) {
+    let spotsForThisDay = day.appointments;
+    let freeSpots = 0;
+    //loop through appointment array in day object
+    for (const spot of spotsForThisDay) {
+      //look through all appointments(state.appointments) to check for interview is null
+      if (appointments[spot].interview === null) {
+        freeSpots ++;
+      }
+    }
+    return freeSpots;
+  }
+
+  //Look through each day and update the spots
+  function fillSpots(days, appointments) {
+    const fillSpots = days.map(day => ({
+      ...day,
+      spots: getSpotsRemainingForDay(day, appointments)
+    }));
+    return fillSpots;
+  }
 
 
 export default function useApplicationData() {
@@ -63,10 +86,16 @@ export default function useApplicationData() {
           ...state.appointments,
           [id]: appointment
         };
+
+        //pass most recent version of appointments to function
+        //after it has been updated with new interview info
+        const days = fillSpots(state.days, appointments)
+        
         //replace entire appointment property value with new appointment value
         return setState(state => ({
           ...state,
-          appointments
+          appointments,
+          days
         }));
       })
       
@@ -77,17 +106,20 @@ export default function useApplicationData() {
       return axios.delete(`/api/appointments/${id}`, { interview }).then(() => {
         const appointment = {
           ...state.appointments[id],
-          interview: { ...interview }
+          interview: null
         };
   
         const appointments = {
           ...state.appointments,
           [id]: appointment
         };
+
+        const days = fillSpots(state.days, appointments)
   
         setState(state => ({
           ...state,
-          appointments
+          appointments,
+          days
         }));
       });
     };

@@ -15,6 +15,7 @@ export default function Form(props) {
 
   const cancel = function() {
     reset();
+    // use () for onCancel because not in prop pass
     props.onCancel();
   };
 
