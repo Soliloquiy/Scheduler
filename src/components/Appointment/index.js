@@ -25,6 +25,8 @@ const SAVING = "SAVING";
 const DELETING = "DELETING";
 const CONFIRMING = "CONFIRMING";
 const EDITING = 'EDITING';
+const ERROR_SAVE = 'ERROR_SAVE';
+const ERROR_DELETE = 'ERROR_DELETE';
 
 const {mode, transition, back} = useVisualMode(
   props.interview ? SHOW : EMPTY
@@ -37,17 +39,24 @@ const {mode, transition, back} = useVisualMode(
     };
     transition(SAVING)
     props.bookInterview(props.id, interview)
-    .then(response => transition(SHOW));
+    .then(response => transition(SHOW))
+    //use replace boolean to replace status history and go to CREATE
+    .catch(error => transition(ERROR_SAVE, true));
   };
 
   function deleting() {
+    //Use replace boolean to replace confirm history and go to SHOW
     transition(DELETING, true);
     props.cancelInterview(props.id)
       .then(() => {
-        transition(EMPTY);
+        transition(EMPTY)
       })
+      //transition DELETING and ERROR_DELETE occur in the same function
+      //hence, ERROR_DELETE will overwrite DELETING in history
+      //Use replace boolean to replace DELETING history
+      .catch(error => transition(ERROR_DELETE, true));
   }
-  
+
   function confirming() {
     transition(CONFIRMING)
   }
@@ -84,7 +93,7 @@ const {mode, transition, back} = useVisualMode(
         <Form
           interviewers={props.interviewers}
           onSave={save}
-          onCancel={() => { return back() }} />
+          onCancel={() => {return back()}} />
       )}
 
       {mode === SAVING && <Status message="Saving" />}
@@ -106,6 +115,20 @@ const {mode, transition, back} = useVisualMode(
           interviewers={props.interviewers}
           onSave={save}
           onCancel={() => back()}
+        />
+      )}
+
+      {mode === ERROR_SAVE && (
+        <Error
+          message="There was an error saving your appointment"
+          onClose={() => back()}
+        />
+      )}
+
+      {mode === ERROR_DELETE && (
+        <Error
+          message="There was an error deleting your appointment"
+          onClose={() => back()}
         />
       )}
 
