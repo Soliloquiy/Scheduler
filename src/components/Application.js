@@ -2,7 +2,7 @@ import React from "react";
 
 import "components/Application.scss";
 
-//Do not use curly braces when importing react default functions
+//ONLY use curly braces when destructuring for methods
 
 import DayList from "./DayList";
 
