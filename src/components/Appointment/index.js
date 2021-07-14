@@ -74,7 +74,7 @@ const {mode, transition, back} = useVisualMode(
 
 
   return (
-    <article className="appointment">
+    <article data-testid="appointment" className="appointment">
       <Header time={props.time} />
 
       {mode === EMPTY && <Empty onAdd={() => {
