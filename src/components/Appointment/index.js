@@ -1,100 +1,98 @@
-import React, { Fragment } from 'react'
-
+import React from "react";
 
 import "components/Appointment/styles.scss";
 
-import Header from 'components/Appointment/Header';
-import Show from 'components/Appointment/Show';
-import Empty from 'components/Appointment/Empty';
-import Form from 'components/Appointment/Form';
-import Status from 'components/Appointment/Status';
-import Confirm from 'components/Appointment/Confirm';
-import Error from 'components/Appointment/Error';
+import Header from "components/Appointment/Header";
+import Show from "components/Appointment/Show";
+import Empty from "components/Appointment/Empty";
+import Form from "components/Appointment/Form";
+import Status from "components/Appointment/Status";
+import Confirm from "components/Appointment/Confirm";
+import Error from "components/Appointment/Error";
 
-import useVisualMode from 'hooks/useVisualMode';
-
-// const classNames = require('classnames');
-
-
+import useVisualMode from "hooks/useVisualMode";
 
 export default function Appointment(props) {
+  const EMPTY = "EMPTY";
+  const SHOW = "SHOW";
+  const CREATE = "CREATE";
+  const SAVING = "SAVING";
+  const DELETING = "DELETING";
+  const CONFIRMING = "CONFIRMING";
+  const EDITING = "EDITING";
+  const ERROR_SAVE = "ERROR_SAVE";
+  const ERROR_DELETE = "ERROR_DELETE";
 
-const EMPTY = "EMPTY";
-const SHOW = "SHOW";
-const CREATE = "CREATE";
-const SAVING = "SAVING";
-const DELETING = "DELETING";
-const CONFIRMING = "CONFIRMING";
-const EDITING = 'EDITING';
-const ERROR_SAVE = 'ERROR_SAVE';
-const ERROR_DELETE = 'ERROR_DELETE';
-
-const {mode, transition, back} = useVisualMode(
-  props.interview ? SHOW : EMPTY
+  //Import mode features with initial value based on presence of interview object
+  const { mode, transition, back } = useVisualMode(
+    props.interview ? SHOW : EMPTY
   );
 
   function save(name, interviewer) {
     const interview = {
       student: name,
-      interviewer
+      interviewer,
     };
-    transition(SAVING)
-    props.bookInterview(props.id, interview)
-    .then(response => transition(SHOW))
-    //use replace boolean to replace status history and go to CREATE
-    .catch(error => transition(ERROR_SAVE, true));
-  };
+    transition(SAVING);
+    props
+      .bookInterview(props.id, interview)
+      .then((response) => transition(SHOW))
+      //use replace boolean to replace status history and go to CREATE
+      .catch((error) => transition(ERROR_SAVE, true));
+  }
 
   function deleting() {
     //Use replace boolean to replace confirm history and go to SHOW
     transition(DELETING, true);
-    props.cancelInterview(props.id)
+    props
+      .cancelInterview(props.id)
       .then(() => {
-        transition(EMPTY)
+        transition(EMPTY);
       })
-      //transition DELETING and ERROR_DELETE occur in the same function
-      //hence, ERROR_DELETE will overwrite DELETING in history
+      //Transition DELETING and ERROR_DELETE occur in the same function
+      //ERROR_DELETE will overwrite DELETING in history
       //Use replace boolean to replace DELETING history
-      .catch(error => transition(ERROR_DELETE, true));
+      .catch((error) => transition(ERROR_DELETE, true));
   }
 
   function confirming() {
-    transition(CONFIRMING)
+    transition(CONFIRMING);
   }
 
   function editing() {
     transition(EDITING);
   }
-  
 
-
-  // const interviewerClass = classNames("interviewers__item", {
-  //   "interviewers__item--selected": props.selected
-  // })
-
-
+  //Retun JSX component based on the current mode
   return (
     <article data-testid="appointment" className="appointment">
       <Header time={props.time} />
 
-      {mode === EMPTY && <Empty onAdd={() => {
-        return transition(CREATE);
-      }} />
-      }
+      {mode === EMPTY && (
+        <Empty
+          onAdd={() => {
+            return transition(CREATE);
+          }}
+        />
+      )}
 
       {mode === SHOW && (
         <Show
           student={props.interview.student}
           interviewer={props.interview.interviewer}
           onEdit={editing}
-          onDelete={confirming} />
+          onDelete={confirming}
+        />
       )}
 
       {mode === CREATE && (
         <Form
           interviewers={props.interviewers}
           onSave={save}
-          onCancel={() => {return back()}} />
+          onCancel={() => {
+            return back();
+          }}
+        />
       )}
 
       {mode === SAVING && <Status message="Saving" />}
@@ -104,7 +102,9 @@ const {mode, transition, back} = useVisualMode(
       {mode === CONFIRMING && (
         <Confirm
           onConfirm={() => deleting()}
-          onCancel={() => {return back()}}
+          onCancel={() => {
+            return back();
+          }}
           message="Are you sure you want to delete?"
         />
       )}
@@ -132,12 +132,6 @@ const {mode, transition, back} = useVisualMode(
           onClose={() => back()}
         />
       )}
-
-
-      {/* {props.interview ?  : } */}
-
-
     </article>
-
   );
 }

@@ -1,9 +1,10 @@
 import { useState } from "react";
 
 export default function useVisualMode(initial) {
+  //Create mode to represent different renders of appointment component
   const [mode, setMode] = useState(initial);
+  //Create history to be able to transition backwards
   const [history, setHistory] = useState([initial]);
-
 
   function transition(mode, replace = false) {
     if (replace) {
@@ -14,16 +15,16 @@ export default function useVisualMode(initial) {
     }
   }
 
-  function back()  {
+  function back() {
     if (history.length === 1) {
       setMode(initial);
     } else {
-    setHistory(history.slice(0, -1));
-    setMode(history[history.length - 2]);
+      //Remove latest history from end of array
+      setHistory(history.slice(0, -1));
+      //Assign mode to previous
+      setMode(history[history.length - 2]);
     }
   }
-
-
 
   return { mode, transition, back };
 }
