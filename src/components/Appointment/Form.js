@@ -25,6 +25,12 @@ export default function Form(props) {
       return;
     }
 
+    if (!interviewer) {
+      setError("Please select an interviewer");
+      setTimeout(() => {setError("")}, 3000)
+      return;
+    }
+
     setError("");
     props.onSave(name, interviewer);
   }
