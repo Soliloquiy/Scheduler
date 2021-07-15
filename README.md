@@ -18,9 +18,9 @@ Users can:
 
 ## Final Product
 
-!["Screenshot of default page"]()
-!["Screenshot of appointment edit"]()
-!["Screenshot of appointment cancel"]()
+!["Screenshot of default page"](https://raw.githubusercontent.com/Soliloquiy/Scheduler/master/docs/default-main-page.png)
+!["Screenshot of appointment edit"](https://raw.githubusercontent.com/Soliloquiy/Scheduler/master/docs/appointment-edit.png)
+!["Screenshot of appointment cancel"](https://raw.githubusercontent.com/Soliloquiy/Scheduler/master/docs/appointment-delete.png)
 
 
 

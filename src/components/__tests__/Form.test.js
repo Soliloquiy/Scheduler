@@ -1,6 +1,6 @@
 import React from "react";
 
-import { fireEvent, render, cleanup, getByText } from "@testing-library/react";
+import { fireEvent, render, cleanup } from "@testing-library/react";
 
 import Form from "components/Appointment/Form";
 
